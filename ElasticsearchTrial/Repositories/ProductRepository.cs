@@ -1,15 +1,15 @@
-﻿using ElasticsearchTrial.Constants;
+﻿using Elastic.Clients.Elasticsearch;
+using ElasticsearchTrial.Constants;
 using ElasticsearchTrial.Dtos;
 using ElasticsearchTrial.Entities;
-using Nest;
 using System.Collections.Immutable;
 
 namespace ElasticsearchTrial.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    private readonly ElasticClient _client;
-    public ProductRepository(ElasticClient client)
+    private readonly ElasticsearchClient _client;
+    public ProductRepository(ElasticsearchClient client)
     {
         _client = client;
     }
@@ -26,11 +26,11 @@ public class ProductRepository : IProductRepository
     {
         var response = await _client.GetAsync<Product>(id, x => x.Index(Messages.ProductIndexName));
 
-        if (!response.IsValid)
+        if (!response.IsSuccess())
         {
             return null;
         }
-        response.Source.Id = response.Id;
+        response.Source!.Id = response.Id;
         return response.Source;
     }
 
@@ -43,7 +43,7 @@ public class ProductRepository : IProductRepository
         //If you want to define id, you should add Id in the query as below.
         //var response = await _client.IndexAsync(newProduct, x => x.Index(indexName).Id(Guid.NewGuid().ToString()));
 
-        if (!response.IsValid) return null;
+        if (!response.IsSuccess()) return null;
 
         newProduct.Id = response.Id;
 
@@ -52,10 +52,10 @@ public class ProductRepository : IProductRepository
 
     public async Task<bool> UpdateSynch(UpdateProductDto updateProductDto)
     {
-        var response = await _client.UpdateAsync<Product, UpdateProductDto>(updateProductDto.Id, x =>
-        x.Index(Messages.ProductIndexName).Doc(updateProductDto));
+        var response = await _client.UpdateAsync<Product, UpdateProductDto>(Messages.ProductIndexName, updateProductDto.Id, x =>
+        x.Doc(updateProductDto));
 
-        return response.IsValid;
+        return response.IsSuccess();
     }
 
     public async Task<DeleteResponse> DeleteAsync(string id)

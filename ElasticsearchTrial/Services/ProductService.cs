@@ -1,7 +1,7 @@
-﻿using ElasticsearchTrial.Constants;
+﻿using Elastic.Clients.Elasticsearch;
+using ElasticsearchTrial.Constants;
 using ElasticsearchTrial.Dtos;
 using ElasticsearchTrial.Repositories;
-using Nest;
 using System.Net;
 
 namespace ElasticsearchTrial.Services;
@@ -71,14 +71,15 @@ public class ProductService : IProductService
     {
         var deleteResponse = await _productRepository.DeleteAsync(id);
 
-        if (!deleteResponse.IsValid && deleteResponse.Result == Result.NotFound)
+        if (!deleteResponse.IsValidResponse && deleteResponse.Result == Result.NotFound)
         {
             return ResponseDto<bool>.Fail(new List<string> { Messages.ProductNotFound }, HttpStatusCode.NotFound);
         }
 
-        if (!deleteResponse.IsValid)
+        if (!deleteResponse.IsValidResponse)
         {
-            _logger.LogError(deleteResponse.OriginalException, deleteResponse.ServerError.Error.ToString());
+            deleteResponse.TryGetOriginalException(out Exception? exception);
+            _logger.LogError(exception, deleteResponse.ElasticsearchServerError?.Error.ToString());
 
             return ResponseDto<bool>.Fail(new List<string> { Messages.AnErrorOccured }, HttpStatusCode.InternalServerError);
         }

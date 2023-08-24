@@ -1,6 +1,6 @@
-﻿using ElasticsearchTrial.Dtos;
+﻿using Elastic.Clients.Elasticsearch;
+using ElasticsearchTrial.Dtos;
 using ElasticsearchTrial.Entities;
-using Nest;
 using System.Collections.Immutable;
 
 namespace ElasticsearchTrial.Repositories;

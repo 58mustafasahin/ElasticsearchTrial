@@ -13,6 +13,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddElasticsearch(builder.Configuration);
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ECommerceRepository>();
 
 var app = builder.Build();
 

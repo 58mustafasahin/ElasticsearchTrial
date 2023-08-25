@@ -2,6 +2,7 @@
 
 public static class Messages
 {
+    public static string ECommerceIndexName = "kibana_sample_data_ecommerce";
     public static string ProductIndexName = "products";
     public static string AnErrorOccured = "An Error Occured.";
     public static string ProductNotFound = "Product Not Found.";

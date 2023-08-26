@@ -183,6 +183,19 @@ public class ECommerceRepository
         return result.Documents.ToImmutableList();
     }
 
+    public async Task<ImmutableList<ECommerce>> MatchPhrasePrefixFullTextAsync(string customerFullName)
+    {
+        var result = await _client.SearchAsync<ECommerce>(s => s.Index(Messages.ECommerceIndexName)
+            .Size(100)
+            .Query(q => q
+                .MatchPhrasePrefix(m => m
+                    .Field(f => f.CustomerFullName)
+                        .Query(customerFullName))));
+
+        foreach (var hit in result.Hits) hit.Source.Id = hit.Id;
+        return result.Documents.ToImmutableList();
+    }
+
     public async Task<ImmutableList<ECommerce>> CompoundQueryExampleOneAsync(string cityName, double taxfulTotalPrice, string categoryName, string manufacturer)
     {
         var result = await _client.SearchAsync<ECommerce>(s => s.Index(Messages.ECommerceIndexName)
@@ -207,6 +220,46 @@ public class ECommerceRepository
                             .Field("manufacturer.keyword")
                             .Value(manufacturer)))
                     )));
+
+        foreach (var hit in result.Hits) hit.Source.Id = hit.Id;
+        return result.Documents.ToImmutableList();
+    }
+
+    public async Task<ImmutableList<ECommerce>> CompoundQueryExampleTwoAsync(string customerFullName)
+    {
+        //var result = await _client.SearchAsync<ECommerce>(s => s.Index(Messages.ECommerceIndexName)
+        //    .Size(100)
+        //    .Query(q => q
+        //        .MatchPhrasePrefix(m => m
+        //            .Field(f => f.CustomerFullName)
+        //            .Query(customerFullName))));
+
+        var result = await _client.SearchAsync<ECommerce>(s => s.Index(Messages.ECommerceIndexName)
+            .Size(100)
+            .Query(q => q
+                .Bool(b => b
+                    .Should(s => s
+                        .Match(t => t
+                            .Field(f => f.CustomerFullName)
+                            .Query(customerFullName))
+                        .Prefix(t => t
+                            .Field(f => f.CustomerFullName.Suffix("keyword"))
+                            .Value(customerFullName))
+                    ))));
+
+        foreach (var hit in result.Hits) hit.Source.Id = hit.Id;
+        return result.Documents.ToImmutableList();
+    }
+
+    public async Task<ImmutableList<ECommerce>> MultiMatchQueryFullTextAsync(string name)
+    {
+        var result = await _client.SearchAsync<ECommerce>(s => s.Index(Messages.ECommerceIndexName)
+            .Size(1000).Query(q => q
+                .MultiMatch(mm => mm
+                    .Fields(new Field("customer_first_name")
+                        .And(new Field("customer_last_name"))
+                        .And(new Field("customer_full_name")))
+                        .Query(name))));
 
         foreach (var hit in result.Hits) hit.Source.Id = hit.Id;
         return result.Documents.ToImmutableList();

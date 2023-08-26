@@ -81,8 +81,26 @@ public class ECommercesController : ControllerBase
     }
 
     [HttpGet]
+    public async Task<IActionResult> MatchPhrasePrefixQueryFullText(string customerFullName)
+    {
+        return Ok(await _repository.MatchPhrasePrefixFullTextAsync(customerFullName));
+    }
+
+    [HttpGet]
     public async Task<IActionResult> CompoundQueryExampleOne(string cityName, double taxfulTotalPrice, string categoryName, string manufacturer)
     {
         return Ok(await _repository.CompoundQueryExampleOneAsync(cityName, taxfulTotalPrice, categoryName, manufacturer));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CompoundQueryExampleTwo(string customerFullName)
+    {
+        return Ok(await _repository.CompoundQueryExampleTwoAsync(customerFullName));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> MultiMatchQueryFullText(string name)
+    {
+        return Ok(await _repository.MultiMatchQueryFullTextAsync(name));
     }
 }

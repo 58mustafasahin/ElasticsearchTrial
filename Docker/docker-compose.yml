@@ -10,6 +10,9 @@ services:
       - "discovery.type=single-node"
       - ELASTIC_USERNAME=elastic
       - ELASTIC_PASSWORD=changeme
+    mem_limit: 512m
+    mem_reservation: 128M
+    cpus: 0.5
     networks:
       - es-net
     ports:
@@ -23,6 +26,9 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     expose:
       - 5601
+    mem_limit: 512m
+    mem_reservation: 128M
+    cpus: 0.5
     networks:
       - es-net
     depends_on:
